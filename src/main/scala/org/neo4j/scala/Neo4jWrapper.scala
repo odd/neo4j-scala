@@ -42,6 +42,9 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    */
   def createNode(implicit ds: DatabaseService): Node = ds.gds.createNode
 
+  
+  def createNode(l: Label*)(implicit ds: DatabaseService): Node = ds.gds.createNode(l : _*)
+  
   /**
    * convenience method to create and serialize a case class
    */

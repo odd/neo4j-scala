@@ -31,7 +31,9 @@ class TypedExecutionResultImpl(val er: ExecutionResult) extends TypedExecutionRe
 
   def columns = er.columns
 
-  def symbols = er.symbols
+//  def symbols = er.symbols
+  
+  def executionPlanDescription = er.executionPlanDescription
 
   def javaColumns = er.javaColumns
 
