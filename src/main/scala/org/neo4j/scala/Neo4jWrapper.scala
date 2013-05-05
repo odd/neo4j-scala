@@ -24,6 +24,12 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    * Execute instructions within a Neo4j transaction; rollback if exception is raised and
    * commit otherwise; and return the return value from the operation.
    */
+  
+  implicit def string2Lable(s : String): Label = {
+    DynamicLabel.label(s)
+  }
+  
+  
   def withTx[T <: Any](operation: DatabaseService => T): T = {
     val tx = synchronized {
       ds.gds.beginTx
@@ -49,7 +55,7 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    * convenience method to create and serialize a case class
    */
   def createNode(cc: AnyRef)(implicit ds: DatabaseService): Node =
-    Neo4jWrapper.serialize(cc, createNode)
+    Neo4jWrapper.serialize(cc, createNode(cc.getClass.getName))
 
   /**
    * Looks up a node by id.
@@ -61,6 +67,16 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
   def getNodeById(id: Long)(implicit ds: DatabaseService): Node =
     ds.gds.getNodeById(id)
 
+  
+    
+  def findNodesByLabelAndProperty(label: Label, property: String, value: Any)(implicit ds: DatabaseService): Iterable[Node] =
+    ds.gds.findNodesByLabelAndProperty(label, property, value)
+    
+    
+    
+  def getNodesWithLabel(label: Label)(implicit ds: DatabaseService): Iterable[Node] =
+    ds.ggo.getAllNodesWithLabel(label)
+    
   /**
    * Looks up a relationship by id.
    *
@@ -82,6 +98,7 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    * @return the reference node
    * @throws NotFoundException if unable to get the reference node
    */
+  @deprecated("Reference Nodes are old news", "2.0")
   def getReferenceNode(implicit ds: DatabaseService): Node =
     ds.gds.getReferenceNode
 
@@ -91,7 +108,7 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    * @return all nodes in the node space
    */
   def getAllNodes(implicit ds: DatabaseService): Iterable[Node] =
-    ds.gds.getAllNodes
+    ds.ggo.getAllNodes
 
   /**
    * Returns all relationship types currently in the underlying store.
@@ -106,7 +123,7 @@ trait Neo4jWrapper extends GraphDatabaseServiceProvider with Neo4jWrapperImplici
    * @return all relationship types in the underlying store
    */
   def getRelationshipTypes(implicit ds: DatabaseService): Iterable[RelationshipType] =
-    ds.gds.getRelationshipTypes
+    ds.ggo.getAllRelationshipTypes
 
   /**
    * Shuts down Neo4j. After this method has been invoked, it's invalid to
@@ -137,7 +154,7 @@ object Neo4jWrapper extends Neo4jWrapperImplicits {
       case (name, null) =>
       case (name, value) => pc.setProperty(name, value)
     }
-    pc(ClassPropertyName) = cc.getClass.getName
+    //pc(ClassPropertyName) = cc.getClass.getName
     pc.asInstanceOf[T]
   }
 

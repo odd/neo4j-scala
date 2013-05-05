@@ -4,3 +4,7 @@ target
 .idea
 *.i??
 *~
+.cache
+.classpath
+.project
+.settings

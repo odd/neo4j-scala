@@ -1,6 +1,7 @@
 package org.neo4j.scala
 
 import org.neo4j.graphdb.GraphDatabaseService
+import org.neo4j.tooling.GlobalGraphOperations
 
 /**
  * Interface for GraphDatabaseService
@@ -9,6 +10,7 @@ import org.neo4j.graphdb.GraphDatabaseService
  */
 trait DatabaseService {
   def gds: GraphDatabaseService
+  lazy val ggo: GlobalGraphOperations = GlobalGraphOperations.at(gds)
 }
 
 /**
